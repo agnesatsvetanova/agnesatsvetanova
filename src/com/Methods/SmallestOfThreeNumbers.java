@@ -11,6 +11,6 @@ public class SmallestOfThreeNumbers {
     }
 
     static void printSmallest (int first, int second, int third){
-        //if ()
+
     }
 }
