@@ -8,9 +8,12 @@ public class SmallestOfThreeNumbers {
         int first = Integer.parseInt(scanner.nextLine());
         int second = Integer.parseInt(scanner.nextLine());
         int third = Integer.parseInt(scanner.nextLine());
+
+        printSmallest(first, second, third);
     }
 
-    static void printSmallest (int first, int second, int third){
-
+    static void printSmallest(int first, int second, int third){
+        int n = Math.min(first, second);
+        System.out.print(Math.min(n, third));
     }
 }
