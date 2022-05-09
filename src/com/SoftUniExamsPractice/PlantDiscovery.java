@@ -5,16 +5,13 @@ import java.util.*;
 public class PlantDiscovery {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
-        Map<String, Integer> plantsRarity = new LinkedHashMap<>();
-        Map<String, List<Double>> plantsRating = new LinkedHashMap<>();
-
+        Map<String, Plant> plants = new LinkedHashMap<>();
         int n = Integer.parseInt(scanner.nextLine());
         for (int i = 0; i < n; i++) {
             String[] line = scanner.nextLine().split("<->");
             String name = line[0];
             int rarity = Integer.parseInt(line[1]);
-            plantsRarity.put(name, rarity);
+            plants.put(name, new Plant(rarity));
         }
 
         String command = scanner.nextLine();
@@ -24,51 +21,79 @@ public class PlantDiscovery {
                 String[] split = replaced.split(" - ");
                 String name = split[0];
                 double rate = Double.parseDouble(split[1]);
-                if(!plantsRarity.containsKey(name)) {
+                if(!plants.containsKey(name)) {
                   System.out.println("error");
-                } else if (!plantsRating.containsKey(name)) {
-                    List<Double> ratings = new ArrayList<>();
-                    ratings.add(rate);
-                    plantsRating.put(name, ratings);
                 } else {
-                    List<Double> currRatings = plantsRating.get(name);
-                    currRatings.add(rate);
-                    plantsRating.put(name, currRatings);
+                    Plant curPlant = plants.get(name);
+                    curPlant.addRating(rate);
+                    plants.put(name, curPlant);
                 }
             } else if (command.startsWith("Update: ")) {
                 String replaced = command.replace("Update: ", "");
                 String[] split = replaced.split(" - ");
                 String name = split[0];
-                if(!plantsRarity.containsKey(name)) {
+                int rarity = Integer.parseInt(split[1]);
+                if(!plants.containsKey(name)) {
                     System.out.println("error");
                 } else {
-                    int rarity = Integer.parseInt(split[1]);
-                    plantsRarity.put(name, rarity);
+                    Plant curPlant = plants.get(name);
+                    curPlant.setRarity(rarity);
+                    plants.put(name, curPlant);
                 }
             } else if (command.startsWith("Reset: ")) {
                 String name = command.replace("Reset: ", "");
-                if(!plantsRarity.containsKey(name)) {
+                if(!plants.containsKey(name)) {
                     System.out.println("error");
-                } else if (plantsRating.containsKey(name)) {
-                    plantsRating.put(name, new ArrayList<>());
+                } else {
+                    Plant curPlant = plants.get(name);
+                    curPlant.clearRating();
+                    plants.put(name, curPlant);
                 }
             }
             command = scanner.nextLine();
         }
 
         System.out.println("Plants for the exhibition:");
-        for (Map.Entry<String, Integer> r : plantsRarity.entrySet()) {
-            String plantName = r.getKey();
-            int rarity = r.getValue();
-            List<Double> ratings = plantsRating.get(plantName);
-            double rate = 0d;
-            if (ratings != null && !ratings.isEmpty()) {
-                for (int i = 0; i < ratings.size(); i++) {
-                    rate += ratings.get(i);
-                }
-                rate /= ratings.size();
+        for (Map.Entry<String, Plant> p : plants.entrySet()) {
+            Plant plant = p.getValue();
+            System.out.printf("- %s; Rarity: %d; Rating: %.2f%n", p.getKey(), plant.getRarity(), plant.getExactRating());
+        }
+    }
+
+    public static class Plant {
+        private Integer rarity;
+        private Double ratingSum;
+        private Integer ratingCount;
+
+        public Plant(Integer rarity) {
+            this.rarity = rarity;
+            this.ratingSum = 0d;
+            this.ratingCount = 0;
+        }
+
+        public Integer getRarity() {
+            return rarity;
+        }
+
+        public void setRarity(Integer rarity) {
+            this.rarity = rarity;
+        }
+
+        public void addRating(Double rating) {
+            this.ratingSum += rating;
+            this.ratingCount++;
+        }
+
+        public void clearRating() {
+            this.ratingSum = 0d;
+            this.ratingCount = 0;
+        }
+
+        public Double getExactRating() {
+            if(ratingCount == 0) {
+                return 0d;
             }
-            System.out.printf("- %s; Rarity: %d; Rating: %.2f%n", plantName, rarity, rate);
+            return ratingSum / ratingCount;
         }
     }
 }
